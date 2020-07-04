@@ -1,2 +1,5 @@
-# console-blackjack-rust
+## console-blackjack-rust
 Console Blacjack in Rust
+
+### Install
+
