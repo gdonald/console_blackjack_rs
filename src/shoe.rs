@@ -47,8 +47,7 @@ impl Shoe {
     }
 
     pub fn get_next_card(&mut self) -> Card {
-        let card: Card = self.cards.remove(0);
-        card
+        self.cards.remove(0)
     }
 }
 

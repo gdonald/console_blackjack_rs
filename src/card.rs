@@ -1,6 +1,4 @@
-use std::fmt;
-
-const CARD_FACES: [[&str; 4]; 14] = [
+pub const CARD_FACES: [[&str; 4]; 14] = [
     ["🂡", "🂱", "🃁", "🃑"],
     ["🂢", "🂲", "🃂", "🃒"],
     ["🂣", "🂳", "🃃", "🃓"],
@@ -36,10 +34,8 @@ impl Card {
     pub fn is_ten(&self) -> bool {
         self.value > 8
     }
-}
 
-impl fmt::Display for Card {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", CARD_FACES[self.value as usize][self.suit as usize])
+    pub fn draw(&self) -> String {
+        format!("{}", CARD_FACES[self.value as usize][self.suit as usize])
     }
 }
