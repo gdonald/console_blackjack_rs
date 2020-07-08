@@ -1,4 +1,13 @@
-use std::process::Command;
+// extern crate termios;
+
+use regex::Regex;
+
+use std::io;
+use std::io::Read;
+use std::io::Write;
+// use std::process::Command;
+
+use termios::{Termios, TCSANOW, ECHO, ICANON, tcsetattr};
 
 use crate::dealer_hand::DealerHand;
 use crate::player_hand::PlayerHand;
@@ -33,6 +42,31 @@ impl Game {
         game.deal_new_hand();
 
         game
+    }
+
+    pub(crate) fn read_one_char(match_str: &str) -> char {
+        let stdin = 0;
+        let termios = Termios::from_fd(stdin).unwrap();
+        let mut new_termios = termios.clone();
+        new_termios.c_lflag &= !(ICANON | ECHO);
+        tcsetattr(stdin, TCSANOW, &mut new_termios).unwrap();
+        let stdout = io::stdout();
+        let mut reader = io::stdin();
+        let mut buffer = [0; 1];
+        stdout.lock().flush().unwrap();
+        reader.read_exact(&mut buffer).unwrap();
+        tcsetattr(stdin, TCSANOW, &termios).unwrap();
+
+        let re = Regex::new(&match_str).unwrap();
+        if !re.is_match(&format!("{}", buffer[0] as char)) {
+           return Game::read_one_char(match_str);
+        }
+
+        buffer[0] as char
+    }
+
+    pub(crate) fn split_hand(_player_hand: &mut PlayerHand) {
+
     }
 
     fn deal_new_hand(&mut self) {
@@ -106,7 +140,8 @@ impl Game {
         println!(" Player ${}:", self.money as f64 / 100.0);
 
         for i in 0..self.player_hands.len() {
-            println!("{}", self.player_hands[i].draw(i as u8 == self.current_player_hand));
+            let current = i as u8 == self.current_player_hand;
+            println!("{}", self.player_hands[i].draw(current));
             println!();
             println!();
         }

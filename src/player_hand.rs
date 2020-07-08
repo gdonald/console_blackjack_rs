@@ -1,5 +1,6 @@
 use crate::hand::Hand;
 use crate::hand::CountMethod;
+use crate::game::Game;
 
 pub enum Status {
     Unknown = 0,
@@ -29,7 +30,56 @@ impl PlayerHand {
         }
     }
 
-    pub fn get_action(&mut self) {}
+    fn can_hit(&self) -> bool {
+        true
+    }
+
+    fn can_stand(&self) -> bool {
+        true
+    }
+
+    fn can_split(&self) -> bool {
+        true
+    }
+
+    fn can_dbl(&self) -> bool {
+        true
+    }
+
+    fn hit(&self) {
+
+    }
+
+    fn stand(&self) {
+
+    }
+
+    fn dbl(&self) {
+
+    }
+
+    pub fn get_action(&mut self) {
+        print!(" ");
+        if self.can_hit() { print!("(H) Hit  ") }
+        if self.can_stand() { print!("(S) Stand  ") }
+        if self.can_split() { print!("(P) Split  ") }
+        if self.can_dbl() { print!("(D) Double  ") }
+        println!();
+
+        let mut c: char;
+
+        loop {
+            c = Game::read_one_char("[hspd]");
+
+            match c {
+                'h' => { self.hit(); break }
+                's' => { self.stand(); break }
+                'p' => { Game::split_hand(self); break }
+                'd' => { self.dbl(); break }
+                _ => {}
+            }
+        }
+    }
 
     fn get_value(&self, count_method: CountMethod) -> u8 {
         let mut total= 0;
