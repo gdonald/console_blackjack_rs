@@ -14,12 +14,14 @@ use std::convert::TryInto;
 use std::vec::Vec;
 use std::ops::Add;
 use std::collections::HashMap;
+use std::fs::File;
+use std::path::Path;
 
 const MIN_BET: u32 = 500;
 const MAX_BET: u32 = 10000000;
 const MAX_PLAYER_HANDS: u8 = 7;
 const CARDS_PER_DECK: u16 = 52;
-// const SAVE_FILE: &str = "bj.txt";
+const SAVE_FILE: &str = "bj.txt";
 
 const CARD_FACES: [[&str; 4]; 14] = [
     ["🂡", "🂱", "🃁", "🃑"],
@@ -99,8 +101,50 @@ pub struct Game {
     pub quitting: bool,
 }
 
-fn load_game(_game: &Game) {
+fn save_game(game: &Game) {
+    let mut f = match File::create(Path::new(SAVE_FILE)) {
+        Ok(f) => f,
+        Err(e) => panic!("cannot create save file: {}", e),
+    };
 
+    let buf: &str = &*format!("{}\n{}\n{}", game.num_decks, game.money, game.current_bet);
+
+    match f.write_all(buf.as_bytes()) {
+        Ok(_) => {}
+        Err(e) => panic!("cannot write to save file: {}", e),
+    }
+}
+
+fn load_game(game: &mut Game) {
+    let result: Result<String, io::Error> = read_save_file();
+
+    match result {
+        Ok(s) => {
+            let vec: Vec<&str> = s.split("\n").collect();
+            if vec.len() >= 3 {
+                (*game).num_decks = vec[0].parse::<u16>().unwrap();
+                (*game).money = vec[1].parse::<u32>().unwrap();
+                (*game).current_bet = vec[2].parse::<u32>().unwrap();
+            }
+        }
+        _ => {}
+    }
+}
+
+fn read_save_file() -> Result<String, io::Error> {
+    let f = File::open(SAVE_FILE);
+
+    let mut f = match f {
+        Ok(file) => file,
+        Err(e) => return Err(e),
+    };
+
+    let mut s = String::new();
+
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e)
+    }
 }
 
 fn play_more_hands(game: &mut Game) {
@@ -195,9 +239,7 @@ fn dbl(game: &mut Game) {
     }
 }
 
-fn split(_game: &Game) {
-
-}
+fn split(_game: &Game) {}
 
 fn more_hands_to_play(game: &Game) -> bool {
     game.current_player_hand < (&game.player_hands.len() - 1).try_into().unwrap()
@@ -585,7 +627,7 @@ fn deal_new_hand(game: &mut Game) {
 
     draw_hands(game);
     hand_option(game);
-    save_game();
+    save_game(game);
 }
 
 fn insure_hand(game: &mut Game) {
@@ -689,6 +731,9 @@ fn pay_hands(game: &mut Game) {
             player_hand.status = Status::Push;
         }
     }
+
+    normalize_bet(game);
+    save_game(game);
 }
 
 fn player_is_busted(player_hand: &PlayerHand) -> bool {
@@ -696,7 +741,8 @@ fn player_is_busted(player_hand: &PlayerHand) -> bool {
 }
 
 fn clear() {
-    print!("{}[2J", 27 as char);
+    let esc: char = 27 as char;
+    print!("{}[2J{}[1;1H", esc, esc);
 }
 
 fn dealer_get_value(dealer_hand: &DealerHand, count_method: CountMethod) -> u8 {
@@ -842,8 +888,6 @@ fn draw_hands(game: &Game) {
     }
 }
 
-fn save_game() {}
-
 fn read_one_char(re: &Regex) -> char {
     let stdout = io::stdout();
     let mut reader = io::stdin();
@@ -894,7 +938,7 @@ fn main() {
         quitting: false,
     };
 
-    load_game(&game);
+    load_game(&mut game);
     new_regular(&mut game);
 
     buffer_off(&term);
