@@ -187,7 +187,7 @@ fn play_dealer_hand(game: &mut Game) {
 }
 
 fn new_shoe(game: &mut Game, values: &Vec<u8>) {
-    let total_cards = (CARDS_PER_DECK * game.num_decks).into();
+    let total_cards: usize = (CARDS_PER_DECK * game.num_decks).into();
 
     game.shoe.clear();
 
