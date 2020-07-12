@@ -253,7 +253,7 @@ fn split(game: &mut Game) {
         stood: false,
         played: false,
         payed: false,
-        bet: game.current_bet
+        bet: game.current_bet,
     };
     let mut hand_count: usize = game.player_hands.len();
 
@@ -638,7 +638,25 @@ fn deal_card(shoe: &mut Vec<Card>, hand: &mut Hand) {
     hand.cards.push(c);
 }
 
+fn need_to_shuffle(game: &Game) -> bool {
+    let num_cards: u16 = game.num_decks * CARDS_PER_DECK;
+    let current_card: u16 = num_cards - game.shoe.len() as u16;
+    let used = current_card as f64 / num_cards as f64 * 100.0;
+    for x in 0..game.shuffle_specs.len() {
+        let spec: [u8; 2] = game.shuffle_specs[x];
+        if game.num_decks == spec[1] as u16 && used > spec[0] as f64 {
+            return true;
+        }
+    }
+
+    false
+}
+
 fn deal_new_hand(game: &mut Game) {
+    if need_to_shuffle(game) {
+        new_regular(game);
+    }
+
     (*game).player_hands = vec![PlayerHand {
         hand: Hand { cards: vec![] },
         status: Status::Unknown,
@@ -896,7 +914,7 @@ fn player_draw_hand(game: &Game, index: u8) -> String {
             _ => { "" }
         });
 
-    result.push_str(&format!("${}", player_hand.bet as f64 / 100.0));
+    result.push_str(&format!("${:.2}", player_hand.bet as f64 / 100.0));
 
     if !player_hand.played && index == game.current_player_hand {
         result.push_str(" ⇐");
@@ -923,7 +941,7 @@ fn draw_hands(game: &Game) {
     println!("{}", dealer_draw_hand(&game));
 
     println!();
-    println!(" Player ${}:", game.money as f64 / 100.0);
+    println!(" Player ${:.2}:", game.money as f64 / 100.0);
 
     for i in 0..game.player_hands.len() {
         println!("{}", player_draw_hand(&game, i.try_into().unwrap()));
