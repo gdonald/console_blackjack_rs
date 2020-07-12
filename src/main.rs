@@ -1005,8 +1005,8 @@ fn main() {
 
     buffer_off(&game.term);
     loop {
-        deal_new_hand(&mut game);
         if game.quitting { break; }
+        deal_new_hand(&mut game);
     }
     buffer_on(&game.term);
 }
