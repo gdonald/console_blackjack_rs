@@ -4,15 +4,12 @@ use rand::seq::SliceRandom;
 use regex::Regex;
 
 use std::io;
-use std::io::Read;
-use std::io::Write;
-use std::io::BufRead;
+use std::io::{Read, Write, BufRead};
 
 use termios::{Termios, TCSANOW, ECHO, ICANON, tcsetattr};
 use std::convert::TryInto;
 
 use std::vec::Vec;
-use std::ops::Add;
 use std::collections::HashMap;
 use std::fs::File;
 use std::path::Path;
@@ -56,6 +53,7 @@ pub enum CountMethod {
     Hard,
 }
 
+#[derive(Clone)]
 pub enum Status {
     Unknown = 0,
     Won,
@@ -63,11 +61,13 @@ pub enum Status {
     Push,
 }
 
+#[derive(Clone)]
 pub struct Card {
     pub value: u8,
     pub suit: u8,
 }
 
+#[derive(Clone)]
 pub struct Hand {
     pub cards: Vec<Card>
 }
@@ -77,6 +77,7 @@ pub struct DealerHand {
     pub hide_down_card: bool,
 }
 
+#[derive(Clone)]
 pub struct PlayerHand {
     pub hand: Hand,
     pub status: Status,
@@ -148,9 +149,9 @@ fn read_save_file() -> Result<String, io::Error> {
 }
 
 fn play_more_hands(game: &mut Game) {
-    &game.current_player_hand.add(1);
+    (*game).current_player_hand += 1;
 
-    deal_card(&mut (*game).shoe, &mut (*game).dealer_hand.hand);
+    deal_card(&mut (*game).shoe, &mut (*game).player_hands[game.current_player_hand as usize].hand);
 
     if player_is_done(game) {
         process(game);
@@ -239,10 +240,53 @@ fn dbl(game: &mut Game) {
     }
 }
 
-fn split(_game: &Game) {}
+fn split(game: &mut Game) {
+    if !can_split(game) {
+        draw_hands(game);
+        hand_option(game);
+        return;
+    }
+
+    let new_hand: PlayerHand = PlayerHand {
+        hand: Hand { cards: vec![] },
+        status: Status::Unknown,
+        stood: false,
+        played: false,
+        payed: false,
+        bet: game.current_bet
+    };
+    let mut hand_count: usize = game.player_hands.len();
+
+    game.player_hands.push(new_hand);
+
+    while hand_count > game.current_player_hand as usize {
+        let ph: PlayerHand = game.player_hands[hand_count - 1].clone();
+        (*game).player_hands[hand_count] = ph;
+        hand_count -= 1;
+    }
+
+    let card_0: Card = game.player_hands[game.current_player_hand as usize].hand.cards[0].clone();
+    let card_1: Card = game.player_hands[game.current_player_hand as usize].hand.cards[1].clone();
+
+    game.player_hands[game.current_player_hand as usize].hand.cards = vec![card_0];
+    game.player_hands[game.current_player_hand as usize + 1].hand.cards = vec![card_1];
+
+    deal_card(&mut game.shoe, &mut game.player_hands[game.current_player_hand as usize].hand);
+
+    if player_is_done(game) {
+        process(game);
+        return;
+    }
+
+    draw_hands(game);
+    hand_option(game);
+}
 
 fn more_hands_to_play(game: &Game) -> bool {
-    game.current_player_hand < (&game.player_hands.len() - 1).try_into().unwrap()
+    let curr = game.current_player_hand as usize;
+    let len = &game.player_hands.len() - 1;
+
+    curr < len
 }
 
 fn need_to_play_dealer_hand(game: &Game) -> bool {
@@ -915,13 +959,11 @@ fn buffer_on(term: &Termios) {
 fn main() {
     let mut matchers = HashMap::new();
     matchers.insert("DeckTypeOptions", Regex::new("[1-6]").unwrap());
+    matchers.insert("AskInsurance", Regex::new("[yn]").unwrap());
     matchers.insert("GameOptions", Regex::new("[ntb]").unwrap());
     matchers.insert("HandOption", Regex::new("[hspd]").unwrap());
     matchers.insert("BetOptions", Regex::new("[dboq]").unwrap());
     matchers.insert("NewBet", Regex::new("[0-9]").unwrap());
-    matchers.insert("AskInsurance", Regex::new("[yn]").unwrap());
-
-    let term = Termios::from_fd(0).unwrap();
 
     let mut game: Game = Game {
         shoe: vec![],
@@ -934,20 +976,17 @@ fn main() {
         shuffle_specs: SHUFFLE_SPECS,
         card_faces: CARD_FACES,
         matchers,
-        term,
+        term: Termios::from_fd(0).unwrap(),
         quitting: false,
     };
 
     load_game(&mut game);
     new_regular(&mut game);
 
-    buffer_off(&term);
+    buffer_off(&game.term);
     loop {
         deal_new_hand(&mut game);
-
-        if game.quitting {
-            break;
-        }
+        if game.quitting { break; }
     }
-    buffer_on(&term);
+    buffer_on(&game.term);
 }
