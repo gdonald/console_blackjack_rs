@@ -10,5 +10,4 @@ Console Blacjack in Rust
 
 ## License
 
-[![GitHub](https://img.shields.io/github/license/gdonald/console-blackjack-rust)](https://github.com/gdonald/console-blackjack-rust/blob/master/LICENSE)
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
