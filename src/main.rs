@@ -983,7 +983,6 @@ fn main() {
     matchers.insert("GameOptions", Regex::new("[ntb]").unwrap());
     matchers.insert("HandOption", Regex::new("[hspd]").unwrap());
     matchers.insert("BetOptions", Regex::new("[dboq]").unwrap());
-    matchers.insert("NewBet", Regex::new("[0-9]").unwrap());
 
     let mut game: Game = Game {
         shoe: vec![],
