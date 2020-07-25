@@ -193,7 +193,7 @@ fn new_shoe(game: &mut Game, values: &Vec<u8>) {
 
     while game.shoe.len() < total_cards {
         for suit in 0..4 {
-            if game.shoe.len() >= total_cards { break; }
+            if game.shoe.len() >= total_cards { break }
 
             for value in values.iter() {
                 let c: Card = Card { value: *value, suit };
@@ -474,8 +474,8 @@ fn get_new_num_decks(game: &mut Game) {
 
     let mut num_decks: u16 = tmp.parse::<u16>().unwrap();
 
-    if num_decks < 1 { num_decks = 1; }
-    if num_decks > 8 { num_decks = 8; }
+    if num_decks < 1 { num_decks = 1 }
+    if num_decks > 8 { num_decks = 8 }
 
     (*game).num_decks = num_decks;
 
@@ -813,7 +813,7 @@ fn dealer_get_value(dealer_hand: &DealerHand, count_method: CountMethod) -> u8 {
     let mut total: u8 = 0;
 
     for i in 0..dealer_hand.hand.cards.len() {
-        if i == 1 && dealer_hand.hide_down_card { continue; }
+        if i == 1 && dealer_hand.hide_down_card { continue }
 
         let card = &dealer_hand.hand.cards[i];
         let tmp_v = card.value + 1;
@@ -829,7 +829,7 @@ fn dealer_get_value(dealer_hand: &DealerHand, count_method: CountMethod) -> u8 {
 
     match count_method {
         CountMethod::Soft => {
-            if total > 21 { return dealer_get_value(dealer_hand, CountMethod::Hard); }
+            if total > 21 { return dealer_get_value(dealer_hand, CountMethod::Hard) }
         }
         _ => {}
     }
@@ -870,7 +870,7 @@ fn player_get_value(player_hand: &PlayerHand, count_method: CountMethod) -> u8 {
 
     match count_method {
         CountMethod::Soft => {
-            if total > 21 { return player_get_value(player_hand, CountMethod::Hard); }
+            if total > 21 { return player_get_value(player_hand, CountMethod::Hard) }
         }
         _ => {}
     }
@@ -887,8 +887,8 @@ fn is_ten(card: &Card) -> bool {
 }
 
 fn is_blackjack(hand: &Hand) -> bool {
-    if hand.cards.len() != 2 { return false; }
-    if is_ace(&hand.cards[0]) && is_ten(&hand.cards[1]) { return true; }
+    if hand.cards.len() != 2 { return false }
+    if is_ace(&hand.cards[0]) && is_ten(&hand.cards[1]) { return true }
 
     is_ace(&hand.cards[1]) && is_ten(&hand.cards[0])
 }
@@ -1005,7 +1005,7 @@ fn main() {
 
     buffer_off(&game.term);
     loop {
-        if game.quitting { break; }
+        if game.quitting { break }
         deal_new_hand(&mut game);
     }
     buffer_on(&game.term);
