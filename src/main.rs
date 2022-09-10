@@ -954,7 +954,6 @@ fn draw_hands(game: &Game) {
     for i in 0..game.player_hands.len() {
         println!("{}", player_draw_hand(&game, i));
         println!();
-        println!();
     }
 }
 

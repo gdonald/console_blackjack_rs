@@ -1,10 +1,10 @@
 [package]
 name = "console-blackjack-rust"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Greg Donald <gdonald@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-rand = "0.7.3"
-regex = "1.5.5"
-termios = "0.3.2"
+rand = "0.8.5"
+regex = "1.6.0"
+termios = "0.3.3"
