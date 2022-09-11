@@ -2,7 +2,7 @@
 name = "console-blackjack-rust"
 version = "1.0.0"
 authors = ["Greg Donald <gdonald@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
