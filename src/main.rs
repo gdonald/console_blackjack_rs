@@ -419,7 +419,7 @@ fn can_dbl(game: &Game) -> bool {
 
     if player_hand.stood
         || player_hand.hand.cards.len() != 2
-        || player_is_busted(&player_hand)
+        || player_is_busted(player_hand)
         || is_blackjack(&player_hand.hand) {
         return false;
     }
@@ -445,8 +445,7 @@ fn game_options(game: &mut Game) {
 
     println!(" (N) Number of Decks  (T) Deck Type  (F) Face Type  (B) Back");
 
-    let c: char;
-    c = read_one_char(&game.matchers.get("GameOptions").unwrap());
+    let c: char = read_one_char(game.matchers.get("GameOptions").unwrap());
 
     match c {
         'n' => {
@@ -517,8 +516,7 @@ fn get_new_deck_type(game: &mut Game) {
     draw_hands(game);
     println!(" (1) Regular  (2) Aces  (3) Jacks  (4) Aces & Jacks  (5) Sevens  (6) Eights");
 
-    let c: char;
-    c = read_one_char(&game.matchers.get("DeckTypeOptions").unwrap());
+    let c: char = read_one_char(game.matchers.get("DeckTypeOptions").unwrap());
     let c_val: u8 = c.to_digit(10).unwrap().try_into().unwrap();
 
     match c_val {
@@ -539,8 +537,7 @@ fn get_new_face_type(game: &mut Game) {
     draw_hands(game);
     println!(" (1) A♠ (2) 🂡");
 
-    let c: char;
-    c = read_one_char(&game.matchers.get("FaceTypeOptions").unwrap());
+    let c: char = read_one_char(game.matchers.get("FaceTypeOptions").unwrap());
     let c_val: u8 = c.to_digit(10).unwrap().try_into().unwrap();
 
     match c_val {
@@ -558,7 +555,7 @@ fn bet_options(game: &mut Game) {
     let mut c: char;
 
     loop {
-        c = read_one_char(&game.matchers.get("BetOptions").unwrap());
+        c = read_one_char(game.matchers.get("BetOptions").unwrap());
 
         match c {
             'd' => {
@@ -598,7 +595,7 @@ fn hand_option(game: &mut Game) {
     let mut c: char;
 
     loop {
-        c = read_one_char(&game.matchers.get("HandOption").unwrap());
+        c = read_one_char(game.matchers.get("HandOption").unwrap());
 
         match c {
             'h' => {
@@ -760,8 +757,7 @@ fn ask_insurance(game: &mut Game) {
 
     println!(" Insurance?  (Y) Yes  (N) No");
 
-    let c: char;
-    c = read_one_char(&game.matchers.get("AskInsurance").unwrap());
+    let c: char = read_one_char(game.matchers.get("AskInsurance").unwrap());
 
     match c {
         'y' => { insure_hand(game); }
@@ -913,7 +909,7 @@ fn player_draw_hand(game: &Game, index: usize) -> String {
     }
 
     result.push_str(" ⇒  ");
-    result.push_str(&format!("{}  ", player_get_value(&player_hand, CountMethod::Soft)));
+    result.push_str(&format!("{}  ", player_get_value(player_hand, CountMethod::Soft)));
 
     result.push_str(
         match player_hand.status {
@@ -932,7 +928,7 @@ fn player_draw_hand(game: &Game, index: usize) -> String {
 
     result.push_str(
         match player_hand.status {
-            HandStatus::Lost => { if player_is_busted(&player_hand) { "Busted!" } else { "Lose!" } }
+            HandStatus::Lost => { if player_is_busted(player_hand) { "Busted!" } else { "Lose!" } }
             HandStatus::Won => { if is_blackjack(&player_hand.hand) { "Blackjack!" } else { "Won!" } }
             HandStatus::Push => { "Push" }
             _ => { "" }
@@ -946,13 +942,13 @@ fn draw_hands(game: &Game) {
 
     println!();
     println!(" Dealer:");
-    println!("{}", dealer_draw_hand(&game));
+    println!("{}", dealer_draw_hand(game));
 
     println!();
     println!(" Player ${:.2}:", game.money as f64 / 100.0);
 
     for i in 0..game.player_hands.len() {
-        println!("{}", player_draw_hand(&game, i));
+        println!("{}", player_draw_hand(game, i));
         println!();
     }
 }
@@ -978,7 +974,7 @@ fn buffer_off(term: &Termios) {
 }
 
 fn buffer_on(term: &Termios) {
-    tcsetattr(0, TCSANOW, &term).unwrap();
+    tcsetattr(0, TCSANOW, term).unwrap();
 }
 
 fn main() {
