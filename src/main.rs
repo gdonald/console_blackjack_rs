@@ -14,6 +14,8 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::path::Path;
 
+use std::fmt::Write as _;
+
 const MIN_BET: u32 = 500;
 const MAX_BET: u32 = 10000000;
 const MAX_PLAYER_HANDS: u8 = 7;
@@ -848,11 +850,11 @@ fn dealer_draw_hand(game: &Game) -> String {
         } else {
             draw_card(game, card)
         };
-        result.push_str(&format!("{} ", c));
+        write!(result, "{} ", c).unwrap();
     }
 
     result.push_str(" ⇒  ");
-    result.push_str(&format!("{}", dealer_get_value(dealer_hand, CountMethod::Soft)));
+    write!(result, "{}", dealer_get_value(dealer_hand, CountMethod::Soft)).unwrap();
 
     result
 }
@@ -905,11 +907,11 @@ fn player_draw_hand(game: &Game, index: usize) -> String {
     let mut result = " ".to_owned();
 
     for i in 0..player_hand.hand.cards.len() {
-        result.push_str(&format!("{} ", &draw_card(game, &player_hand.hand.cards[i])));
+        write!(result, "{} ", &draw_card(game, &player_hand.hand.cards[i])).unwrap();
     }
 
     result.push_str(" ⇒  ");
-    result.push_str(&format!("{}  ", player_get_value(player_hand, CountMethod::Soft)));
+    write!(result, "{}  ", player_get_value(player_hand, CountMethod::Soft)).unwrap();
 
     result.push_str(
         match player_hand.status {
@@ -918,7 +920,7 @@ fn player_draw_hand(game: &Game, index: usize) -> String {
             _ => { "" }
         });
 
-    result.push_str(&format!("${:.2}", player_hand.bet as f64 / 100.0));
+    write!(result, "${:.2}", player_hand.bet as f64 / 100.0).unwrap();
 
     if !player_hand.played && index == game.current_player_hand {
         result.push_str(" ⇐");
