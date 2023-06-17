@@ -96,7 +96,7 @@ pub struct PlayerHand {
     pub status: HandStatus,
     pub stood: bool,
     pub played: bool,
-    pub payed: bool,
+    pub paid: bool,
     pub bet: u32,
     pub hand: Hand,
 }
@@ -289,7 +289,7 @@ fn split(game: &mut Game) {
         status: HandStatus::Unknown,
         stood: false,
         played: false,
-        payed: false,
+        paid: false,
         bet: game.current_bet,
     };
     let mut hand_count: usize = game.player_hands.len();
@@ -642,8 +642,8 @@ fn player_is_done(game: &mut Game) -> bool {
         21 == player_get_value(player_hand, CountMethod::Hard) {
         player_hand.played = true;
 
-        if !player_hand.payed && player_is_busted(player_hand) {
-            player_hand.payed = true;
+        if !player_hand.paid && player_is_busted(player_hand) {
+            player_hand.paid = true;
             player_hand.status = HandStatus::Lost;
             (*game).money -= player_hand.bet;
         }
@@ -687,7 +687,7 @@ fn deal_new_hand(game: &mut Game) {
         status: HandStatus::Unknown,
         stood: false,
         played: false,
-        payed: false,
+        paid: false,
         bet: game.current_bet,
     }];
     (*game).current_player_hand = 0;
@@ -722,7 +722,7 @@ fn insure_hand(game: &mut Game) {
 
     player_hand.bet /= 2;
     player_hand.played = true;
-    player_hand.payed = true;
+    player_hand.paid = true;
     player_hand.status = HandStatus::Lost;
     (*game).money -= player_hand.bet;
 
@@ -783,9 +783,9 @@ fn pay_hands(game: &mut Game) {
     for x in 0..game.player_hands.len() {
         player_hand = &mut game.player_hands[x];
 
-        if player_hand.payed { continue; }
+        if player_hand.paid { continue; }
 
-        (*player_hand).payed = true;
+        (*player_hand).paid = true;
 
         phv = player_get_value(player_hand, CountMethod::Soft);
 
