@@ -1,10 +1,10 @@
-## console-blackjack-rust
+## console_blackjack_rs
 
 Console Blackjack in Rust
 
-![Blackjack](https://raw.githubusercontent.com/gdonald/console-blackjack-rust/master/ss1.png)
+![Blackjack](https://raw.githubusercontent.com/gdonald/console_blackjack_rs/master/ss1.png)
 
-![Blackjack](https://raw.githubusercontent.com/gdonald/console-blackjack-rust/master/ss2.png)
+![Blackjack](https://raw.githubusercontent.com/gdonald/console_blackjack_rs/master/ss2.png)
 
 ## Run
 
