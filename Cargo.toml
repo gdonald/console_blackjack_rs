@@ -1,5 +1,5 @@
 [package]
-name = "console-blackjack-rust"
+name = "console_blackjack"
 version = "1.0.0"
 authors = ["Greg Donald <gdonald@gmail.com>"]
 edition = "2021"
