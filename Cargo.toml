@@ -6,5 +6,5 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
-regex = "1.6.0"
+regex = "1.10.3"
 termios = "0.3.3"

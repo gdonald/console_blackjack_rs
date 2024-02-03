@@ -17,34 +17,6 @@ use std::path::Path;
 use std::fmt::Write as _;
 use console_blackjack_rs::*;
 
-const MIN_BET: u32 = 500;
-const MAX_BET: u32 = 10000000;
-const MAX_PLAYER_HANDS: u8 = 7;
-const CARDS_PER_DECK: u16 = 52;
-const SAVE_FILE: &str = "bj.txt";
-
-const SHUFFLE_SPECS: [[u8; 2]; 8] = [
-    [95, 8],
-    [92, 7],
-    [89, 6],
-    [86, 5],
-    [84, 4],
-    [82, 3],
-    [81, 2],
-    [80, 1]
-];
-
-pub enum CountMethod {
-    Soft,
-    Hard,
-}
-
-#[derive(Clone, Copy)]
-pub struct Card {
-    pub value: u8,
-    pub suit: u8,
-}
-
 #[derive(Clone)]
 pub struct Hand {
     pub cards: Vec<Card>,
@@ -813,7 +785,7 @@ fn dealer_draw_hand(game: &Game) -> String {
     for i in 0..dealer_hand.hand.cards.len() {
         let card: &Card = &dealer_hand.hand.cards[i];
         let c: String = if i == 1 && dealer_hand.hide_down_card {
-            draw_card(game, &Card{ value: 13, suit: 0})
+            draw_card(game, &Card { value: 13, suit: 0 })
         } else {
             draw_card(game, card)
         };
@@ -843,14 +815,6 @@ fn player_get_value(player_hand: &PlayerHand, count_method: CountMethod) -> u8 {
     }
 
     total
-}
-
-fn is_ace(card: &Card) -> bool {
-    card.value == 0
-}
-
-fn is_ten(card: &Card) -> bool {
-    card.value > 8
 }
 
 fn is_blackjack(hand: &Hand) -> bool {
@@ -972,7 +936,7 @@ fn main() {
     };
 
     load_game(&mut game);
-    
+
     buffer_off(&game.term);
     loop {
         if game.quitting { break; }

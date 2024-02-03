@@ -1,3 +1,8 @@
+pub const MIN_BET: u32 = 500;
+pub const MAX_BET: u32 = 10000000;
+pub const MAX_PLAYER_HANDS: u8 = 7;
+pub const CARDS_PER_DECK: u16 = 52;
+pub const SAVE_FILE: &str = "bj.txt";
 
 pub const CARD_FACES: [[&str; 4]; 14] = [
     ["A♠", "A♥", "A♣", "A♦"],
@@ -32,3 +37,33 @@ pub const CARD_FACES_2: [[&str; 4]; 14] = [
     ["🂮", "🂾", "🃎", "🃞"],
     ["🂠", "", "", ""]
 ];
+
+pub const SHUFFLE_SPECS: [[u8; 2]; 8] = [
+    [95, 8],
+    [92, 7],
+    [89, 6],
+    [86, 5],
+    [84, 4],
+    [82, 3],
+    [81, 2],
+    [80, 1]
+];
+
+pub enum CountMethod {
+    Soft,
+    Hard,
+}
+
+#[derive(Clone, Copy)]
+pub struct Card {
+    pub value: u8,
+    pub suit: u8,
+}
+
+pub fn is_ace(card: &Card) -> bool {
+    card.value == 0
+}
+
+pub fn is_ten(card: &Card) -> bool {
+    card.value > 8
+}
