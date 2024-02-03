@@ -1,5 +1,5 @@
 
-use console_blackjack::*;
+use console_blackjack_rs::*;
 
 #[test]
 fn card_faces_contains_14_card_values() {

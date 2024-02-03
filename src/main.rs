@@ -15,7 +15,7 @@ use std::fs::File;
 use std::path::Path;
 
 use std::fmt::Write as _;
-use console_blackjack::*;
+use console_blackjack_rs::*;
 
 const MIN_BET: u32 = 500;
 const MAX_BET: u32 = 10000000;
