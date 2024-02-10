@@ -18,7 +18,7 @@ pub const CARD_FACES: [[&str; 4]; 14] = [
     ["J♠", "J♥", "J♣", "J♦"],
     ["Q♠", "Q♥", "Q♣", "Q♦"],
     ["K♠", "K♥", "K♣", "K♦"],
-    ["??", "", "", ""]
+    ["??", "", "", ""],
 ];
 
 pub const CARD_FACES_2: [[&str; 4]; 14] = [
@@ -35,7 +35,7 @@ pub const CARD_FACES_2: [[&str; 4]; 14] = [
     ["🂫", "🂻", "🃋", "🃛"],
     ["🂭", "🂽", "🃍", "🃝"],
     ["🂮", "🂾", "🃎", "🃞"],
-    ["🂠", "", "", ""]
+    ["🂠", "", "", ""],
 ];
 
 pub const SHUFFLE_SPECS: [[u8; 2]; 8] = [
@@ -46,7 +46,7 @@ pub const SHUFFLE_SPECS: [[u8; 2]; 8] = [
     [84, 4],
     [82, 3],
     [81, 2],
-    [80, 1]
+    [80, 1],
 ];
 
 pub enum CountMethod {
@@ -54,10 +54,21 @@ pub enum CountMethod {
     Hard,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Card {
     pub value: u8,
     pub suit: u8,
+}
+
+impl PartialEq for Card {
+    fn eq(&self, other: &Self) -> bool {
+        self.value == other.value && self.suit == other.suit
+    }
+}
+
+#[derive(Clone)]
+pub struct Hand {
+    pub cards: Vec<Card>,
 }
 
 pub fn is_ace(card: &Card) -> bool {

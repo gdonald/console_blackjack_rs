@@ -1,26 +1,21 @@
-use rand::thread_rng;
 use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 use regex::Regex;
 
 use std::io;
-use std::io::{Read, Write, BufRead, Stdin};
+use std::io::{BufRead, Read, Stdin, Write};
 
-use termios::{Termios, TCSANOW, ECHO, ICANON, tcsetattr};
 use std::convert::TryInto;
+use termios::{tcsetattr, Termios, ECHO, ICANON, TCSANOW};
 
-use std::vec::Vec;
 use std::collections::HashMap;
 use std::fs::File;
 use std::path::Path;
+use std::vec::Vec;
 
-use std::fmt::Write as _;
 use console_blackjack_rs::*;
-
-#[derive(Clone)]
-pub struct Hand {
-    pub cards: Vec<Card>,
-}
+use std::fmt::Write as _;
 
 #[derive(Clone)]
 pub enum HandStatus {
@@ -69,11 +64,8 @@ fn save_game(game: &Game) {
 
     let buf: &str = &*format!(
         "{}\n{}\n{}\n{}\n{}",
-        game.num_decks,
-        game.money,
-        game.current_bet,
-        game.deck_type,
-        game.face_type);
+        game.num_decks, game.money, game.current_bet, game.deck_type, game.face_type
+    );
 
     match f.write_all(buf.as_bytes()) {
         Ok(_) => {}
@@ -108,14 +100,17 @@ fn read_save_file() -> Result<String, io::Error> {
 
     match f.read_to_string(&mut s) {
         Ok(_) => Ok(s),
-        Err(e) => Err(e)
+        Err(e) => Err(e),
     }
 }
 
 fn play_more_hands(game: &mut Game) {
     (*game).current_player_hand += 1;
 
-    deal_card(&mut (*game).shoe, &mut (*game).player_hands[game.current_player_hand].hand);
+    deal_card(
+        &mut (*game).shoe,
+        &mut (*game).player_hands[game.current_player_hand].hand,
+    );
 
     if player_is_done(game) {
         process(game);
@@ -157,10 +152,15 @@ fn new_shoe(game: &mut Game, values: &[u8]) {
 
     while game.shoe.len() < total_cards {
         for suit in 0..4 {
-            if game.shoe.len() >= total_cards { break; }
+            if game.shoe.len() >= total_cards {
+                break;
+            }
 
             for value in values.iter() {
-                let c: Card = Card { value: *value, suit };
+                let c: Card = Card {
+                    value: *value,
+                    suit,
+                };
                 game.shoe.push(c);
             }
         }
@@ -195,17 +195,32 @@ fn new_eights(game: &mut Game) {
 
 fn build_new_shoe(game: &mut Game) {
     match game.deck_type {
-        2 => { new_aces(game); }
-        3 => { new_jacks(game); }
-        4 => { new_aces_jacks(game); }
-        5 => { new_sevens(game); }
-        6 => { new_eights(game); }
-        _ => { new_regular(game); }
+        2 => {
+            new_aces(game);
+        }
+        3 => {
+            new_jacks(game);
+        }
+        4 => {
+            new_aces_jacks(game);
+        }
+        5 => {
+            new_sevens(game);
+        }
+        6 => {
+            new_eights(game);
+        }
+        _ => {
+            new_regular(game);
+        }
     }
 }
 
 fn dbl(game: &mut Game) {
-    deal_card(&mut (*game).shoe, &mut (*game).player_hands[game.current_player_hand].hand);
+    deal_card(
+        &mut (*game).shoe,
+        &mut (*game).player_hands[game.current_player_hand].hand,
+    );
 
     let player_hand: &mut PlayerHand = &mut (*game).player_hands[game.current_player_hand];
     player_hand.played = true;
@@ -241,11 +256,17 @@ fn split(game: &mut Game) {
         hand_count -= 1;
     }
 
-    let cards: Vec<Card> = game.player_hands[game.current_player_hand].hand.cards.clone();
+    let cards: Vec<Card> = game.player_hands[game.current_player_hand]
+        .hand
+        .cards
+        .clone();
     game.player_hands[game.current_player_hand].hand.cards = vec![cards[0]];
     game.player_hands[game.current_player_hand + 1].hand.cards = vec![cards[1]];
 
-    deal_card(&mut game.shoe, &mut game.player_hands[game.current_player_hand].hand);
+    deal_card(
+        &mut game.shoe,
+        &mut game.player_hands[game.current_player_hand].hand,
+    );
 
     if player_is_done(game) {
         process(game);
@@ -293,7 +314,10 @@ fn stand(game: &mut Game) {
 }
 
 fn hit(game: &mut Game) {
-    deal_card(&mut (*game).shoe, &mut (*game).player_hands[game.current_player_hand].hand);
+    deal_card(
+        &mut (*game).shoe,
+        &mut (*game).player_hands[game.current_player_hand].hand,
+    );
 
     if player_is_done(game) {
         process(game);
@@ -332,9 +356,7 @@ fn can_hit(game: &Game) -> bool {
 fn can_stand(game: &Game) -> bool {
     let player_hand: &PlayerHand = get_current_player_hand(game);
 
-    !(player_hand.stood
-        || player_is_busted(player_hand)
-        || is_blackjack(&player_hand.hand))
+    !(player_hand.stood || player_is_busted(player_hand) || is_blackjack(&player_hand.hand))
 }
 
 fn can_split(game: &Game) -> bool {
@@ -348,7 +370,8 @@ fn can_split(game: &Game) -> bool {
         return false;
     }
 
-    player_hand.hand.cards.len() == 2 && player_hand.hand.cards[0].value == player_hand.hand.cards[1].value
+    player_hand.hand.cards.len() == 2
+        && player_hand.hand.cards[0].value == player_hand.hand.cards[1].value
 }
 
 fn can_dbl(game: &Game) -> bool {
@@ -361,7 +384,8 @@ fn can_dbl(game: &Game) -> bool {
     if player_hand.stood
         || player_hand.hand.cards.len() != 2
         || player_is_busted(player_hand)
-        || is_blackjack(&player_hand.hand) {
+        || is_blackjack(&player_hand.hand)
+    {
         return false;
     }
 
@@ -415,7 +439,10 @@ fn get_new_bet(game: &mut Game) {
 
     buffer_on(&game.term);
 
-    print!("  Current Bet: ${}  Enter New Bet: $", game.current_bet / 100);
+    print!(
+        "  Current Bet: ${}  Enter New Bet: $",
+        game.current_bet / 100
+    );
     io::stdout().flush().expect("Cannot flush stdout");
 
     let stdin: Stdin = io::stdin();
@@ -434,7 +461,10 @@ fn get_new_num_decks(game: &mut Game) {
 
     buffer_on(&game.term);
 
-    print!("  Number Of Decks: {}  Enter New Number Of Decks (1-8): ", game.num_decks);
+    print!(
+        "  Number Of Decks: {}  Enter New Number Of Decks (1-8): ",
+        game.num_decks
+    );
     io::stdout().flush().expect("Cannot flush stdout");
 
     let stdin: Stdin = io::stdin();
@@ -444,8 +474,12 @@ fn get_new_num_decks(game: &mut Game) {
 
     let mut num_decks: u16 = tmp.parse::<u16>().unwrap();
 
-    if num_decks < 1 { num_decks = 1 }
-    if num_decks > 8 { num_decks = 8 }
+    if num_decks < 1 {
+        num_decks = 1
+    }
+    if num_decks > 8 {
+        num_decks = 8
+    }
 
     (*game).num_decks = num_decks;
 
@@ -463,10 +497,14 @@ fn get_new_deck_type(game: &mut Game) {
     match c_val {
         1..=6 => {
             game.deck_type = c_val;
-            if c_val > 1 { game.num_decks = 8; }
+            if c_val > 1 {
+                game.num_decks = 8;
+            }
             build_new_shoe(game);
         }
-        _ => { get_new_deck_type(game); }
+        _ => {
+            get_new_deck_type(game);
+        }
     }
 
     draw_hands(game);
@@ -482,8 +520,12 @@ fn get_new_face_type(game: &mut Game) {
     let c_val: u8 = c.to_digit(10).unwrap().try_into().unwrap();
 
     match c_val {
-        1..=2 => { game.face_type = c_val; }
-        _ => { get_new_face_type(game); }
+        1..=2 => {
+            game.face_type = c_val;
+        }
+        _ => {
+            get_new_face_type(game);
+        }
     }
 
     draw_hands(game);
@@ -527,10 +569,18 @@ fn bet_options(game: &mut Game) {
 
 fn hand_option(game: &mut Game) {
     print!(" ");
-    if can_hit(game) { print!("(H) Hit  ") }
-    if can_stand(game) { print!("(S) Stand  ") }
-    if can_split(game) { print!("(P) Split  ") }
-    if can_dbl(game) { print!("(D) Double  ") }
+    if can_hit(game) {
+        print!("(H) Hit  ")
+    }
+    if can_stand(game) {
+        print!("(S) Stand  ")
+    }
+    if can_split(game) {
+        print!("(P) Split  ")
+    }
+    if can_dbl(game) {
+        print!("(D) Double  ")
+    }
     println!();
 
     let mut c: char;
@@ -573,12 +623,13 @@ fn all_bets(game: &Game) -> u32 {
 fn player_is_done(game: &mut Game) -> bool {
     let player_hand: &mut PlayerHand = &mut game.player_hands[game.current_player_hand];
 
-    if player_hand.played ||
-        player_hand.stood ||
-        is_blackjack(&player_hand.hand) ||
-        player_is_busted(player_hand) ||
-        21 == player_get_value(player_hand, CountMethod::Soft) ||
-        21 == player_get_value(player_hand, CountMethod::Hard) {
+    if player_hand.played
+        || player_hand.stood
+        || is_blackjack(&player_hand.hand)
+        || player_is_busted(player_hand)
+        || 21 == player_get_value(player_hand, CountMethod::Soft)
+        || 21 == player_get_value(player_hand, CountMethod::Hard)
+    {
         player_hand.played = true;
 
         if !player_hand.paid && player_is_busted(player_hand) {
@@ -630,7 +681,10 @@ fn deal_new_hand(game: &mut Game) {
         bet: game.current_bet,
     }];
     (*game).current_player_hand = 0;
-    (*game).dealer_hand = DealerHand { hand: Hand { cards: vec![] }, hide_down_card: true };
+    (*game).dealer_hand = DealerHand {
+        hand: Hand { cards: vec![] },
+        hide_down_card: true,
+    };
 
     deal_card(&mut (*game).shoe, &mut (*game).player_hands[0].hand);
     deal_card(&mut (*game).shoe, &mut (*game).dealer_hand.hand);
@@ -701,9 +755,15 @@ fn ask_insurance(game: &mut Game) {
     let c: char = read_one_char(game.matchers.get("AskInsurance").unwrap());
 
     match c {
-        'y' => { insure_hand(game); }
-        'n' => { no_insurance(game); }
-        _ => { ask_insurance(game); }
+        'y' => {
+            insure_hand(game);
+        }
+        'n' => {
+            no_insurance(game);
+        }
+        _ => {
+            ask_insurance(game);
+        }
     }
 }
 
@@ -722,7 +782,9 @@ fn pay_hands(game: &mut Game) {
     for x in 0..game.player_hands.len() {
         player_hand = &mut game.player_hands[x];
 
-        if player_hand.paid { continue; }
+        if player_hand.paid {
+            continue;
+        }
 
         (*player_hand).paid = true;
 
@@ -760,19 +822,27 @@ fn dealer_get_value(dealer_hand: &DealerHand, count_method: CountMethod) -> u8 {
     let mut total: u8 = 0;
 
     for i in 0..dealer_hand.hand.cards.len() {
-        if i == 1 && dealer_hand.hide_down_card { continue; }
+        if i == 1 && dealer_hand.hide_down_card {
+            continue;
+        }
 
         let card = &dealer_hand.hand.cards[i];
         let tmp_v = card.value + 1;
         let mut v = if tmp_v > 9 { 10 } else { tmp_v };
 
-        if let CountMethod::Soft = count_method { if v == 1 && total < 11 { v = 11 } }
+        if let CountMethod::Soft = count_method {
+            if v == 1 && total < 11 {
+                v = 11
+            }
+        }
 
         total += v;
     }
 
     if let CountMethod::Soft = count_method {
-        if total > 21 { return dealer_get_value(dealer_hand, CountMethod::Hard); }
+        if total > 21 {
+            return dealer_get_value(dealer_hand, CountMethod::Hard);
+        }
     }
 
     total
@@ -793,7 +863,12 @@ fn dealer_draw_hand(game: &Game) -> String {
     }
 
     result.push_str(" ⇒  ");
-    write!(result, "{}", dealer_get_value(dealer_hand, CountMethod::Soft)).unwrap();
+    write!(
+        result,
+        "{}",
+        dealer_get_value(dealer_hand, CountMethod::Soft)
+    )
+        .unwrap();
 
     result
 }
@@ -805,21 +880,31 @@ fn player_get_value(player_hand: &PlayerHand, count_method: CountMethod) -> u8 {
         let tmp_v = card.value + 1;
         let mut v = if tmp_v > 9 { 10 } else { tmp_v };
 
-        if let CountMethod::Soft = count_method { if v == 1 && total < 11 { v = 11 } }
+        if let CountMethod::Soft = count_method {
+            if v == 1 && total < 11 {
+                v = 11
+            }
+        }
 
         total += v;
     }
 
     if let CountMethod::Soft = count_method {
-        if total > 21 { return player_get_value(player_hand, CountMethod::Hard); }
+        if total > 21 {
+            return player_get_value(player_hand, CountMethod::Hard);
+        }
     }
 
     total
 }
 
 fn is_blackjack(hand: &Hand) -> bool {
-    if hand.cards.len() != 2 { return false; }
-    if is_ace(&hand.cards[0]) && is_ten(&hand.cards[1]) { return true; }
+    if hand.cards.len() != 2 {
+        return false;
+    }
+    if is_ace(&hand.cards[0]) && is_ten(&hand.cards[1]) {
+        return true;
+    }
 
     is_ace(&hand.cards[1]) && is_ten(&hand.cards[0])
 }
@@ -842,14 +927,18 @@ fn player_draw_hand(game: &Game, index: usize) -> String {
     }
 
     result.push_str(" ⇒  ");
-    write!(result, "{}  ", player_get_value(player_hand, CountMethod::Soft)).unwrap();
+    write!(
+        result,
+        "{}  ",
+        player_get_value(player_hand, CountMethod::Soft)
+    )
+        .unwrap();
 
-    result.push_str(
-        match player_hand.status {
-            HandStatus::Lost => { "-" }
-            HandStatus::Won => { "+" }
-            _ => { "" }
-        });
+    result.push_str(match player_hand.status {
+        HandStatus::Lost => "-",
+        HandStatus::Won => "+",
+        _ => "",
+    });
 
     write!(result, "${:.2}", player_hand.bet as f64 / 100.0).unwrap();
 
@@ -859,13 +948,24 @@ fn player_draw_hand(game: &Game, index: usize) -> String {
 
     result.push(' ');
 
-    result.push_str(
-        match player_hand.status {
-            HandStatus::Lost => { if player_is_busted(player_hand) { "Busted!" } else { "Lose!" } }
-            HandStatus::Won => { if is_blackjack(&player_hand.hand) { "Blackjack!" } else { "Won!" } }
-            HandStatus::Push => { "Push" }
-            _ => { "" }
-        });
+    result.push_str(match player_hand.status {
+        HandStatus::Lost => {
+            if player_is_busted(player_hand) {
+                "Busted!"
+            } else {
+                "Lose!"
+            }
+        }
+        HandStatus::Won => {
+            if is_blackjack(&player_hand.hand) {
+                "Blackjack!"
+            } else {
+                "Won!"
+            }
+        }
+        HandStatus::Push => "Push",
+        _ => "",
+    });
 
     result
 }
@@ -921,7 +1021,10 @@ fn main() {
 
     let mut game: Game = Game {
         shoe: vec![],
-        dealer_hand: DealerHand { hand: Hand { cards: vec![] }, hide_down_card: true },
+        dealer_hand: DealerHand {
+            hand: Hand { cards: vec![] },
+            hide_down_card: true,
+        },
         player_hands: vec![],
         num_decks: 8,
         deck_type: 1,
@@ -939,7 +1042,9 @@ fn main() {
 
     buffer_off(&game.term);
     loop {
-        if game.quitting { break; }
+        if game.quitting {
+            break;
+        }
         deal_new_hand(&mut game);
     }
     buffer_on(&game.term);

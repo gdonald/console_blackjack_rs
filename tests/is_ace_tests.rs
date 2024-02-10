@@ -1,4 +1,4 @@
-use console_blackjack_rs::{Card, is_ace};
+use console_blackjack_rs::{is_ace, Card};
 
 #[test]
 fn test_is_ace_true() {
@@ -9,5 +9,8 @@ fn test_is_ace_true() {
 #[test]
 fn test_is_ace_false() {
     let card = Card { value: 1, suit: 0 };
-    assert!(!is_ace(&card), "Card with value not equal to 0 should not be an Ace.");
+    assert!(
+        !is_ace(&card),
+        "Card with value not equal to 0 should not be an Ace."
+    );
 }

@@ -1,10 +1,4 @@
-use console_blackjack_rs::{
-    MIN_BET,
-    MAX_BET,
-    MAX_PLAYER_HANDS,
-    CARDS_PER_DECK,
-    SAVE_FILE,
-};
+use console_blackjack_rs::{CARDS_PER_DECK, MAX_BET, MAX_PLAYER_HANDS, MIN_BET, SAVE_FILE};
 
 #[test]
 fn min_bet_is_500() {
@@ -33,5 +27,8 @@ fn cards_per_deck_is_52() {
 
 #[test]
 fn save_file_name_is_correct() {
-    assert_eq!(SAVE_FILE, "bj.txt", "The SAVE_FILE constant does not match the expected value.");
+    assert_eq!(
+        SAVE_FILE, "bj.txt",
+        "The SAVE_FILE constant does not match the expected value."
+    );
 }

@@ -2,17 +2,25 @@ use console_blackjack_rs::{CARD_FACES, CARD_FACES_2};
 
 #[test]
 fn card_faces_contains_14_card_values() {
-    assert_eq!(CARD_FACES.len(), 14);
-    assert_eq!(CARD_FACES_2.len(), 14);
+    assert_eq!(
+        CARD_FACES.len(),
+        14,
+        "Card faces should have a length of 14"
+    );
+    assert_eq!(
+        CARD_FACES_2.len(),
+        14,
+        "Card faces should have a length of 14"
+    );
 }
 
 #[test]
 fn each_card_value_contains_4_faces() {
     for face in CARD_FACES.iter() {
-        assert_eq!(face.len(), 4);
+        assert_eq!(face.len(), 4, "A card face should have 4 suits");
     }
     for face in CARD_FACES_2.iter() {
-        assert_eq!(face.len(), 4);
+        assert_eq!(face.len(), 4, "A card face should have 4 suits");
     }
 }
 
