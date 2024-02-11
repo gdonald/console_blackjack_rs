@@ -18,14 +18,6 @@ use console_blackjack_rs::*;
 use std::fmt::Write as _;
 
 #[derive(Clone)]
-pub enum HandStatus {
-    Unknown = 0,
-    Won,
-    Lost,
-    Push,
-}
-
-#[derive(Clone)]
 pub struct PlayerHand {
     pub status: HandStatus,
     pub stood: bool,

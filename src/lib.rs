@@ -71,6 +71,20 @@ pub struct Hand {
     pub cards: Vec<Card>,
 }
 
+#[derive(Clone, Debug)]
+pub enum HandStatus {
+    Unknown = 0,
+    Won,
+    Lost,
+    Push,
+}
+
+impl PartialEq for HandStatus {
+    fn eq(&self, other: &Self) -> bool {
+        std::mem::discriminant(self) == std::mem::discriminant(other)
+    }
+}
+
 pub fn is_ace(card: &Card) -> bool {
     card.value == 0
 }
