@@ -1,31 +1,16 @@
+use console_blackjack_rs::*;
 use rand::seq::SliceRandom;
 use rand::thread_rng;
-
 use regex::Regex;
-
+use std::collections::HashMap;
+use std::convert::TryInto;
+use std::fmt::Write as _;
+use std::fs::File;
 use std::io;
 use std::io::{BufRead, Read, Stdin, Write};
-
-use std::convert::TryInto;
-use termios::{tcsetattr, Termios, ECHO, ICANON, TCSANOW};
-
-use std::collections::HashMap;
-use std::fs::File;
 use std::path::Path;
 use std::vec::Vec;
-
-use console_blackjack_rs::*;
-use std::fmt::Write as _;
-
-#[derive(Clone)]
-pub struct PlayerHand {
-    pub status: HandStatus,
-    pub stood: bool,
-    pub played: bool,
-    pub paid: bool,
-    pub bet: u32,
-    pub hand: Hand,
-}
+use termios::{tcsetattr, Termios, ECHO, ICANON, TCSANOW};
 
 pub struct DealerHand {
     pub hide_down_card: bool,

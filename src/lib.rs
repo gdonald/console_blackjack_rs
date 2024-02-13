@@ -66,9 +66,25 @@ impl PartialEq for Card {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Hand {
     pub cards: Vec<Card>,
+}
+
+impl PartialEq for Hand {
+    fn eq(&self, other: &Self) -> bool {
+        if self.cards.len() != other.cards.len() {
+            return false;
+        }
+
+        for (index, card) in self.cards.iter().enumerate() {
+            if card != &other.cards[index] {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -83,6 +99,16 @@ impl PartialEq for HandStatus {
     fn eq(&self, other: &Self) -> bool {
         std::mem::discriminant(self) == std::mem::discriminant(other)
     }
+}
+
+#[derive(Clone)]
+pub struct PlayerHand {
+    pub status: HandStatus,
+    pub stood: bool,
+    pub played: bool,
+    pub paid: bool,
+    pub bet: u32,
+    pub hand: Hand,
 }
 
 pub fn is_ace(card: &Card) -> bool {
