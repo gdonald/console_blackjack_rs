@@ -1,8 +1,6 @@
 use console_blackjack_rs::{
-    build_game, initialize_matchers, Card, DealerHand, Game, Hand, HandStatus, PlayerHand,
-    SHUFFLE_SPECS,
+    build_game, Card, DealerHand, Hand, HandStatus, MockTermiosWrapper, PlayerHand, SHUFFLE_SPECS,
 };
-use termios::Termios;
 
 #[test]
 fn test_new_game_initialization() {
@@ -20,28 +18,16 @@ fn test_new_game_initialization() {
         hand: Hand { cards: Vec::new() },
     }];
 
-    let game = Game {
-        quitting: false,
-        num_decks: 1,
-        deck_type: 0,
-        face_type: 0,
-        money: 1000,
-        current_bet: 0,
-        current_player_hand: 0,
-        shuffle_specs: SHUFFLE_SPECS,
-        matchers: initialize_matchers(),
-        term: Termios::from_fd(0).unwrap(),
-        dealer_hand,
-        player_hands,
-        shoe: Vec::new(),
-    };
+    let mut game = build_game::<MockTermiosWrapper>();
+    game.dealer_hand = dealer_hand;
+    game.player_hands = player_hands;
 
     assert!(!game.quitting, "quitting should be false initially.");
-    assert_eq!(game.num_decks, 1, "num_decks should be 1.");
-    assert_eq!(game.deck_type, 0, "deck_type should be 0.");
-    assert_eq!(game.face_type, 0, "face_type should be 0.");
-    assert_eq!(game.money, 1000, "money should be 1000.");
-    assert_eq!(game.current_bet, 0, "current_bet should be 0.");
+    assert_eq!(game.num_decks, 8, "num_decks should be 8.");
+    assert_eq!(game.deck_type, 1, "deck_type should be 1.");
+    assert_eq!(game.face_type, 1, "face_type should be 1.");
+    assert_eq!(game.money, 10000, "money should be 10000.");
+    assert_eq!(game.current_bet, 500, "current_bet should be 500.");
     assert_eq!(
         game.current_player_hand, 0,
         "current_player_hand should be 0."
@@ -55,7 +41,7 @@ fn test_new_game_initialization() {
 
 #[test]
 fn test_build_game() {
-    let game = build_game();
+    let game = build_game::<MockTermiosWrapper>();
 
     assert_eq!(game.shoe, Vec::<Card>::new(), "Shoe should be empty.");
 

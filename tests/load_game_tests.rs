@@ -1,11 +1,11 @@
-use console_blackjack_rs::{build_game, load_game, SAVE_FILE};
+use console_blackjack_rs::{build_game, load_game, MockTermiosWrapper, SAVE_FILE};
 
 #[test]
 fn test_load_game() {
     let content = "4\n1000\n50\n1\n1";
     std::fs::write(SAVE_FILE, content).expect("Failed to create save file for testing");
 
-    let mut game = build_game();
+    let mut game = build_game::<MockTermiosWrapper>();
 
     load_game(&mut game);
 

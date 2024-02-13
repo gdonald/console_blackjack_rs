@@ -158,6 +158,46 @@ impl PartialEq for DealerHand {
     }
 }
 
+pub trait TermiosWrapper {
+    fn from_fd(fd: i32) -> Result<Self, std::io::Error>
+    where
+        Self: Sized;
+
+    fn buffer_off(&mut self);
+    fn buffer_on(&mut self);
+}
+
+impl TermiosWrapper for Termios {
+    fn from_fd(fd: i32) -> Result<Self, std::io::Error> {
+        Termios::from_fd(fd)
+    }
+
+    fn buffer_off(&mut self) {
+        self.c_lflag &= !(ICANON | ECHO);
+        tcsetattr(0, TCSANOW, &self).unwrap();
+    }
+
+    fn buffer_on(&mut self) {
+        tcsetattr(0, TCSANOW, &self).unwrap();
+    }
+}
+
+pub struct MockTermiosWrapper;
+
+impl TermiosWrapper for MockTermiosWrapper {
+    fn from_fd(_fd: i32) -> Result<Self, std::io::Error> {
+        Ok(MockTermiosWrapper)
+    }
+
+    fn buffer_off(&mut self) {
+        // noop
+    }
+
+    fn buffer_on(&mut self) {
+        // noop
+    }
+}
+
 pub struct Game {
     pub quitting: bool,
     pub num_decks: u16,
@@ -168,7 +208,7 @@ pub struct Game {
     pub current_player_hand: usize,
     pub shuffle_specs: [[u8; 2]; 8],
     pub matchers: HashMap<&'static str, Regex>,
-    pub term: Termios,
+    pub term: Box<dyn TermiosWrapper>,
     pub dealer_hand: DealerHand,
     pub player_hands: Vec<PlayerHand>,
     pub shoe: Vec<Card>,
@@ -233,7 +273,9 @@ pub fn load_game(game: &mut Game) {
     }
 }
 
-pub fn build_game() -> Game {
+pub fn build_game<T: TermiosWrapper + 'static>() -> Game {
+    let term = T::from_fd(0).unwrap();
+
     Game {
         shoe: vec![],
         dealer_hand: DealerHand {
@@ -249,19 +291,17 @@ pub fn build_game() -> Game {
         current_player_hand: 0,
         shuffle_specs: SHUFFLE_SPECS,
         matchers: initialize_matchers(),
-        term: Termios::from_fd(0).unwrap(),
+        term: Box::new(term),
         quitting: false,
     }
 }
 
-pub fn buffer_off(term: &Termios) {
-    let mut new_term = *term;
-    new_term.c_lflag &= !(ICANON | ECHO);
-    tcsetattr(0, TCSANOW, &new_term).unwrap();
+pub fn buffer_off(term: &mut dyn TermiosWrapper) {
+    term.buffer_off();
 }
 
-pub fn buffer_on(term: &Termios) {
-    tcsetattr(0, TCSANOW, term).unwrap();
+pub fn buffer_on(term: &mut dyn TermiosWrapper) {
+    term.buffer_on();
 }
 
 pub fn deal_new_hand(game: &mut Game) {
@@ -640,7 +680,7 @@ pub fn get_new_bet(game: &mut Game) {
     clear();
     draw_hands(game);
 
-    buffer_on(&game.term);
+    buffer_on(&mut *game.term);
 
     print!(
         "  Current Bet: ${}  Enter New Bet: $",
@@ -651,7 +691,7 @@ pub fn get_new_bet(game: &mut Game) {
     let stdin: Stdin = io::stdin();
     let tmp: String = stdin.lock().lines().next().unwrap().unwrap();
 
-    buffer_off(&game.term);
+    buffer_off(&mut *game.term);
 
     (*game).current_bet = tmp.parse::<u32>().unwrap() * 100;
     normalize_bet(game);
@@ -662,7 +702,7 @@ pub fn get_new_num_decks(game: &mut Game) {
     clear();
     draw_hands(game);
 
-    buffer_on(&game.term);
+    buffer_on(&mut *game.term);
 
     print!(
         "  Number Of Decks: {}  Enter New Number Of Decks (1-8): ",
@@ -673,7 +713,7 @@ pub fn get_new_num_decks(game: &mut Game) {
     let stdin: Stdin = io::stdin();
     let tmp: String = stdin.lock().lines().next().unwrap().unwrap();
 
-    buffer_off(&game.term);
+    buffer_off(&mut *game.term);
 
     let mut num_decks: u16 = tmp.parse::<u16>().unwrap();
 
@@ -1028,7 +1068,7 @@ pub fn dealer_draw_hand(game: &Game) -> String {
         "{}",
         dealer_get_value(dealer_hand, CountMethod::Soft)
     )
-        .unwrap();
+    .unwrap();
 
     result
 }
@@ -1092,7 +1132,7 @@ pub fn player_draw_hand(game: &Game, index: usize) -> String {
         "{}  ",
         player_get_value(player_hand, CountMethod::Soft)
     )
-        .unwrap();
+    .unwrap();
 
     result.push_str(match player_hand.status {
         HandStatus::Lost => "-",
@@ -1161,17 +1201,17 @@ pub fn read_one_char(re: &Regex) -> char {
 }
 
 pub fn run_game() {
-    let mut game = build_game();
+    let mut game = build_game::<Termios>();
     load_game(&mut game);
 
-    buffer_off(&game.term);
+    buffer_off(&mut *game.term);
     loop {
         if game.quitting {
             break;
         }
         deal_new_hand(&mut game);
     }
-    buffer_on(&game.term);
+    buffer_on(&mut *game.term);
 }
 
 pub fn is_ace(card: &Card) -> bool {
