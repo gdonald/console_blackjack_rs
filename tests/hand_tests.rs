@@ -13,19 +13,36 @@ fn test_cloned_hand_has_same_cards() {
     let original_hand = Hand {
         cards: vec![card1.clone(), card2.clone()],
     };
-
     let cloned_hand = original_hand.clone();
 
-    assert_eq!(
-        original_hand.cards.len(),
-        cloned_hand.cards.len(),
-        "Number of cards should be the same."
-    );
+    assert_eq!(original_hand, cloned_hand, "Hands should be the same.");
+}
 
-    for (original_card, cloned_card) in original_hand.cards.iter().zip(cloned_hand.cards.iter()) {
-        assert_eq!(
-            original_card, cloned_card,
-            "Cards in original and cloned hands should be the same."
-        );
-    }
+#[test]
+fn test_hand_has_different_card_count() {
+    let card1 = Card { value: 0, suit: 0 };
+    let card2 = Card { value: 1, suit: 1 };
+    let original_hand = Hand {
+        cards: vec![card1.clone(), card2.clone()],
+    };
+    let other_hand = Hand {
+        cards: vec![card1.clone()],
+    };
+
+    assert_ne!(original_hand, other_hand, "Hands should not be the same.");
+}
+
+#[test]
+fn test_hand_has_different_cards() {
+    let card1 = Card { value: 0, suit: 0 };
+    let card2 = Card { value: 1, suit: 1 };
+    let card3 = Card { value: 1, suit: 0 };
+    let original_hand = Hand {
+        cards: vec![card1.clone(), card2.clone()],
+    };
+    let other_hand = Hand {
+        cards: vec![card2.clone(), card3.clone()],
+    };
+
+    assert_ne!(original_hand, other_hand, "Hands should not be the same.");
 }

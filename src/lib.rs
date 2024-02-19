@@ -94,7 +94,7 @@ impl PartialEq for Hand {
             }
         }
 
-        return true;
+        true
     }
 }
 
@@ -154,12 +154,12 @@ impl PartialEq for DealerHand {
             return false;
         }
 
-        return true;
+        true
     }
 }
 
 pub trait TermiosWrapper {
-    fn from_fd(fd: i32) -> Result<Self, std::io::Error>
+    fn from_fd(fd: i32) -> Result<Self, io::Error>
     where
         Self: Sized;
 
@@ -168,7 +168,7 @@ pub trait TermiosWrapper {
 }
 
 impl TermiosWrapper for Termios {
-    fn from_fd(fd: i32) -> Result<Self, std::io::Error> {
+    fn from_fd(fd: i32) -> Result<Self, io::Error> {
         Termios::from_fd(fd)
     }
 
@@ -185,7 +185,7 @@ impl TermiosWrapper for Termios {
 pub struct MockTermiosWrapper;
 
 impl TermiosWrapper for MockTermiosWrapper {
-    fn from_fd(_fd: i32) -> Result<Self, std::io::Error> {
+    fn from_fd(_fd: i32) -> Result<Self, io::Error> {
         Ok(MockTermiosWrapper)
     }
 
