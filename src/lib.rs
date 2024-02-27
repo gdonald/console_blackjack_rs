@@ -138,7 +138,7 @@ impl PartialEq for PlayerHand {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct DealerHand {
     pub hide_down_card: bool,
     pub hand: Hand,
