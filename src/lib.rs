@@ -721,20 +721,17 @@ pub fn get_new_num_decks(game: &mut Game) {
     let stdin: Stdin = io::stdin();
     let tmp: String = stdin.lock().lines().next().unwrap().unwrap();
 
+    match u16::from_str(&tmp) {
+        Ok(num_decks) => {
+            (*game).num_decks = num_decks.clone().clamp(1, 8);
+            game_options(game);
+        },
+        Err(_) => {
+            get_new_num_decks(game);
+        }
+    }
+
     buffer_off(&mut *game.term);
-
-    let mut num_decks: u16 = tmp.parse::<u16>().unwrap();
-
-    if num_decks < 1 {
-        num_decks = 1
-    }
-    if num_decks > 8 {
-        num_decks = 8
-    }
-
-    (*game).num_decks = num_decks;
-
-    game_options(game);
 }
 
 pub fn get_new_deck_type(game: &mut Game) {
