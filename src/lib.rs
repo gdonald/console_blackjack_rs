@@ -7,7 +7,8 @@ use std::fs::File;
 use std::io;
 use std::io::{BufRead, Read, Stdin, Write};
 use std::path::Path;
-use termios::{tcsetattr, Termios, ECHO, ICANON, TCSANOW};
+use std::str::FromStr;
+use termios::{tcsetattr, Termios, ICANON, TCSANOW};
 
 pub const MIN_BET: u32 = 500;
 pub const MAX_BET: u32 = 10000000;
@@ -173,7 +174,7 @@ impl TermiosWrapper for Termios {
     }
 
     fn buffer_off(&mut self) {
-        self.c_lflag &= !(ICANON | ECHO);
+        self.c_lflag &= !(ICANON);
         tcsetattr(0, TCSANOW, &self).unwrap();
     }
 
@@ -691,11 +692,18 @@ pub fn get_new_bet(game: &mut Game) {
     let stdin: Stdin = io::stdin();
     let tmp: String = stdin.lock().lines().next().unwrap().unwrap();
 
-    buffer_off(&mut *game.term);
+    match u32::from_str(&tmp) {
+        Ok(bet) => {
+            (*game).current_bet = bet * 100;
+            normalize_bet(game);
+            deal_new_hand(game);
+        },
+        Err(_) => {
+            get_new_bet(game);
+        }
+    }
 
-    (*game).current_bet = tmp.parse::<u32>().unwrap() * 100;
-    normalize_bet(game);
-    deal_new_hand(game);
+    buffer_off(&mut *game.term);
 }
 
 pub fn get_new_num_decks(game: &mut Game) {
