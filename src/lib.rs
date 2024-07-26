@@ -174,7 +174,7 @@ impl TermiosWrapper for Termios {
     }
 
     fn buffer_off(&mut self) {
-        self.c_lflag &= !(ICANON);
+        self.c_lflag &= !ICANON;
         tcsetattr(0, TCSANOW, &self).unwrap();
     }
 
