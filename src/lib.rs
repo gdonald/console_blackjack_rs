@@ -697,7 +697,7 @@ pub fn get_new_bet(game: &mut Game) {
             (*game).current_bet = bet * 100;
             normalize_bet(game);
             deal_new_hand(game);
-        },
+        }
         Err(_) => {
             get_new_bet(game);
         }
@@ -725,7 +725,7 @@ pub fn get_new_num_decks(game: &mut Game) {
         Ok(num_decks) => {
             (*game).num_decks = num_decks.clone().clamp(1, 8);
             game_options(game);
-        },
+        }
         Err(_) => {
             get_new_num_decks(game);
         }
