@@ -19,6 +19,7 @@ Console Blackjack in Rust
 I've written Blackjack in several other languages:
 
 - [Ruby](https://github.com/gdonald/console-blackjack-ruby)
+- [Zig](https://github.com/gdonald/blackjack-zig)
 - [Typescript](https://github.com/gdonald/blackjack-js)
 - [Raku](https://github.com/gdonald/Console-Blackjack)
 - [Perl](https://github.com/gdonald/console-blackjack-perl)
