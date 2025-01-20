@@ -529,17 +529,9 @@ pub fn more_hands_to_play(game: &Game) -> bool {
 }
 
 pub fn need_to_play_dealer_hand(game: &Game) -> bool {
-    let mut player_hand: &PlayerHand;
-
-    for x in 0..game.player_hands.len() {
-        player_hand = &game.player_hands[x];
-
-        if !(player_is_busted(player_hand) || is_blackjack(&player_hand.hand)) {
-            return true;
-        }
-    }
-
-    false
+    game.player_hands
+        .iter()
+        .any(|hand| !player_is_busted(hand) && !is_blackjack(&hand.hand))
 }
 
 pub fn stand(game: &mut Game) {
