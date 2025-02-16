@@ -175,11 +175,11 @@ impl TermiosWrapper for Termios {
 
     fn buffer_off(&mut self) {
         self.c_lflag &= !ICANON;
-        tcsetattr(0, TCSANOW, &self).unwrap();
+        tcsetattr(0, TCSANOW, self).unwrap();
     }
 
     fn buffer_on(&mut self) {
-        tcsetattr(0, TCSANOW, &self).unwrap();
+        tcsetattr(0, TCSANOW, self).unwrap();
     }
 }
 
@@ -232,7 +232,7 @@ pub fn save_game(game: &Game) {
         Err(e) => panic!("cannot create save file: {}", e),
     };
 
-    let buf: &str = &*format!(
+    let buf: &str = &format!(
         "{}\n{}\n{}\n{}\n{}",
         game.num_decks, game.money, game.current_bet, game.deck_type, game.face_type
     );
@@ -246,10 +246,7 @@ pub fn save_game(game: &Game) {
 pub fn read_save_file() -> Result<String, io::Error> {
     let f = File::open(SAVE_FILE);
 
-    let mut f = match f {
-        Ok(file) => file,
-        Err(e) => return Err(e),
-    };
+    let mut f = f?;
 
     let mut s = String::new();
 
@@ -265,11 +262,11 @@ pub fn load_game(game: &mut Game) {
     if let Ok(s) = result {
         let vec: Vec<&str> = s.split('\n').collect();
         if vec.len() >= 5 {
-            (*game).num_decks = vec[0].parse::<u16>().unwrap();
-            (*game).money = vec[1].parse::<u32>().unwrap();
-            (*game).current_bet = vec[2].parse::<u32>().unwrap();
-            (*game).deck_type = vec[3].parse::<u8>().unwrap();
-            (*game).face_type = vec[4].parse::<u8>().unwrap();
+            game.num_decks = vec[0].parse::<u16>().unwrap();
+            game.money = vec[1].parse::<u32>().unwrap();
+            game.current_bet = vec[2].parse::<u32>().unwrap();
+            game.deck_type = vec[3].parse::<u8>().unwrap();
+            game.face_type = vec[4].parse::<u8>().unwrap();
         }
     }
 }
@@ -310,7 +307,7 @@ pub fn deal_new_hand(game: &mut Game) {
         build_new_shoe(game);
     }
 
-    (*game).player_hands = vec![PlayerHand {
+    game.player_hands = vec![PlayerHand {
         hand: Hand { cards: vec![] },
         status: HandStatus::Unknown,
         stood: false,
@@ -318,16 +315,16 @@ pub fn deal_new_hand(game: &mut Game) {
         paid: false,
         bet: game.current_bet,
     }];
-    (*game).current_player_hand = 0;
-    (*game).dealer_hand = DealerHand {
+    game.current_player_hand = 0;
+    game.dealer_hand = DealerHand {
         hand: Hand { cards: vec![] },
         hide_down_card: true,
     };
 
-    deal_card(&mut (*game).shoe, &mut (*game).player_hands[0].hand);
-    deal_card(&mut (*game).shoe, &mut (*game).dealer_hand.hand);
-    deal_card(&mut (*game).shoe, &mut (*game).player_hands[0].hand);
-    deal_card(&mut (*game).shoe, &mut (*game).dealer_hand.hand);
+    deal_card(&mut game.shoe, &mut game.player_hands[0].hand);
+    deal_card(&mut game.shoe, &mut game.dealer_hand.hand);
+    deal_card(&mut game.shoe, &mut game.player_hands[0].hand);
+    deal_card(&mut game.shoe, &mut game.dealer_hand.hand);
 
     if dealer_upcard_is_ace(&game.dealer_hand) && !is_blackjack(&game.player_hands[0].hand) {
         draw_hands(game);
@@ -349,11 +346,11 @@ pub fn deal_new_hand(game: &mut Game) {
 }
 
 pub fn play_more_hands(game: &mut Game) {
-    (*game).current_player_hand += 1;
+    game.current_player_hand += 1;
 
     deal_card(
-        &mut (*game).shoe,
-        &mut (*game).player_hands[game.current_player_hand].hand,
+        &mut game.shoe,
+        &mut game.player_hands[game.current_player_hand].hand,
     );
 
     if player_is_done(game) {
@@ -366,8 +363,8 @@ pub fn play_more_hands(game: &mut Game) {
 }
 
 pub fn play_dealer_hand(game: &mut Game) {
-    if is_blackjack(&(*game).dealer_hand.hand) {
-        (*game).dealer_hand.hide_down_card = false;
+    if is_blackjack(&game.dealer_hand.hand) {
+        game.dealer_hand.hide_down_card = false;
     }
 
     if !need_to_play_dealer_hand(game) {
@@ -375,15 +372,15 @@ pub fn play_dealer_hand(game: &mut Game) {
         return;
     }
 
-    (*game).dealer_hand.hide_down_card = false;
+    game.dealer_hand.hide_down_card = false;
 
-    let mut soft_count: u8 = dealer_get_value(&(*game).dealer_hand, CountMethod::Soft);
-    let mut hard_count: u8 = dealer_get_value(&(*game).dealer_hand, CountMethod::Hard);
+    let mut soft_count: u8 = dealer_get_value(&game.dealer_hand, CountMethod::Soft);
+    let mut hard_count: u8 = dealer_get_value(&game.dealer_hand, CountMethod::Hard);
 
     while soft_count < 18 && hard_count < 17 {
-        deal_card(&mut (*game).shoe, &mut (*game).dealer_hand.hand);
-        soft_count = dealer_get_value(&(*game).dealer_hand, CountMethod::Soft);
-        hard_count = dealer_get_value(&(*game).dealer_hand, CountMethod::Hard);
+        deal_card(&mut game.shoe, &mut game.dealer_hand.hand);
+        soft_count = dealer_get_value(&game.dealer_hand, CountMethod::Soft);
+        hard_count = dealer_get_value(&game.dealer_hand, CountMethod::Hard);
     }
 
     pay_hands(game);
@@ -462,11 +459,11 @@ pub fn build_new_shoe(game: &mut Game) {
 
 pub fn dbl(game: &mut Game) {
     deal_card(
-        &mut (*game).shoe,
-        &mut (*game).player_hands[game.current_player_hand].hand,
+        &mut game.shoe,
+        &mut game.player_hands[game.current_player_hand].hand,
     );
 
-    let player_hand: &mut PlayerHand = &mut (*game).player_hands[game.current_player_hand];
+    let player_hand: &mut PlayerHand = &mut game.player_hands[game.current_player_hand];
     player_hand.played = true;
     player_hand.bet *= 2;
 
@@ -496,7 +493,7 @@ pub fn split(game: &mut Game) {
 
     while hand_count > game.current_player_hand {
         let ph: PlayerHand = game.player_hands[hand_count - 1].clone();
-        (*game).player_hands[hand_count] = ph;
+        game.player_hands[hand_count] = ph;
         hand_count -= 1;
     }
 
@@ -551,8 +548,8 @@ pub fn stand(game: &mut Game) {
 
 pub fn hit(game: &mut Game) {
     deal_card(
-        &mut (*game).shoe,
-        &mut (*game).player_hands[game.current_player_hand].hand,
+        &mut game.shoe,
+        &mut game.player_hands[game.current_player_hand].hand,
     );
 
     if player_is_done(game) {
@@ -629,14 +626,10 @@ pub fn can_dbl(game: &Game) -> bool {
 }
 
 pub fn normalize_bet(game: &mut Game) {
-    if game.current_bet < MIN_BET {
-        (*game).current_bet = MIN_BET;
-    } else if game.current_bet > MAX_BET {
-        (*game).current_bet = MAX_BET;
-    }
+    game.current_bet = game.current_bet.clamp(MIN_BET, MAX_BET);
 
     if game.current_bet > game.money {
-        (*game).current_bet = game.money;
+        game.current_bet = game.money;
     }
 }
 
@@ -686,7 +679,7 @@ pub fn get_new_bet(game: &mut Game) {
 
     match u32::from_str(&tmp) {
         Ok(bet) => {
-            (*game).current_bet = bet * 100;
+            game.current_bet = bet * 100;
             normalize_bet(game);
             deal_new_hand(game);
         }
@@ -715,7 +708,7 @@ pub fn get_new_num_decks(game: &mut Game) {
 
     match u16::from_str(&tmp) {
         Ok(num_decks) => {
-            (*game).num_decks = num_decks.clone().clamp(1, 8);
+            game.num_decks = num_decks.clamp(1, 8);
             game_options(game);
         }
         Err(_) => {
@@ -794,7 +787,7 @@ pub fn bet_options(game: &mut Game) {
                 break;
             }
             'q' => {
-                (*game).quitting = true;
+                game.quitting = true;
                 clear();
                 break;
             }
@@ -875,7 +868,7 @@ pub fn player_is_done(game: &mut Game) -> bool {
         if !player_hand.paid && player_is_busted(player_hand) {
             player_hand.paid = true;
             player_hand.status = HandStatus::Lost;
-            (*game).money -= player_hand.bet;
+            game.money -= player_hand.bet;
         }
 
         return true;
@@ -914,7 +907,7 @@ pub fn insure_hand(game: &mut Game) {
     player_hand.played = true;
     player_hand.paid = true;
     player_hand.status = HandStatus::Lost;
-    (*game).money -= player_hand.bet;
+    game.money -= player_hand.bet;
 
     draw_hands(game);
     bet_options(game);
@@ -924,7 +917,7 @@ pub fn no_insurance(game: &mut Game) {
     let dealer_hand: &mut DealerHand = &mut game.dealer_hand;
 
     if is_blackjack(&dealer_hand.hand) {
-        (*dealer_hand).hide_down_card = false;
+        dealer_hand.hide_down_card = false;
 
         pay_hands(game);
         draw_hands(game);
@@ -983,16 +976,16 @@ pub fn pay_hands(game: &mut Game) {
             continue;
         }
 
-        (*player_hand).paid = true;
+        player_hand.paid = true;
 
         phv = player_get_value(player_hand, CountMethod::Soft);
 
         if dhb || phv > dhv {
             if is_blackjack(&player_hand.hand) {
-                (*player_hand).bet = (player_hand.bet as f64 * 1.5) as u32;
+                player_hand.bet = (player_hand.bet as f64 * 1.5) as u32;
             }
 
-            (*game).money += player_hand.bet;
+            game.money += player_hand.bet;
             player_hand.status = HandStatus::Won;
         } else if phv < dhv {
             game.money -= player_hand.bet;

@@ -70,5 +70,5 @@ fn test_build_game() {
         game.current_player_hand, 0,
         "current_player_hand should be 0."
     );
-    assert_eq!(game.quitting, false, "should not be quitting");
+    assert!(!game.quitting, "should not be quitting");
 }

@@ -31,7 +31,7 @@ fn test_new_player_hand_initialization() {
 fn test_player_hands_are_equal_when_cloned() {
     let card = Card { value: 0, suit: 0 };
     let hand = Hand {
-        cards: vec![card.clone()],
+        cards: vec![card],
     };
     let player_hand = PlayerHand {
         status: HandStatus::Unknown,
@@ -54,10 +54,10 @@ fn test_hand_has_different_card_count() {
     let card1 = Card { value: 0, suit: 0 };
     let card2 = Card { value: 1, suit: 1 };
     let hand1 = Hand {
-        cards: vec![card1.clone(), card2.clone()],
+        cards: vec![card1, card2],
     };
     let hand2 = Hand {
-        cards: vec![card1.clone()],
+        cards: vec![card1],
     };
     let player_hand = PlayerHand {
         status: HandStatus::Unknown,
@@ -88,10 +88,10 @@ fn test_hand_has_different_cards() {
     let card2 = Card { value: 1, suit: 1 };
     let card3 = Card { value: 1, suit: 0 };
     let hand1 = Hand {
-        cards: vec![card1.clone(), card2.clone()],
+        cards: vec![card1, card2],
     };
     let hand2 = Hand {
-        cards: vec![card2.clone(), card3.clone()],
+        cards: vec![card2, card3],
     };
     let player_hand = PlayerHand {
         status: HandStatus::Unknown,
