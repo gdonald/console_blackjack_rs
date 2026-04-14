@@ -25,9 +25,7 @@ fn test_hand_has_different_card_count() {
     let original_hand = Hand {
         cards: vec![card1, card2],
     };
-    let other_hand = Hand {
-        cards: vec![card1],
-    };
+    let other_hand = Hand { cards: vec![card1] };
 
     assert_ne!(original_hand, other_hand, "Hands should not be the same.");
 }

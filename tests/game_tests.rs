@@ -1,5 +1,5 @@
 use console_blackjack_rs::{
-    build_game, Card, DealerHand, Hand, HandStatus, MockTermiosWrapper, PlayerHand, SHUFFLE_SPECS,
+    Card, DealerHand, Hand, HandStatus, MockTermiosWrapper, PlayerHand, SHUFFLE_SPECS, build_game,
 };
 
 #[test]

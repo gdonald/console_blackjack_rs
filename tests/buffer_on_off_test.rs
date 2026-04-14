@@ -1,4 +1,4 @@
-use console_blackjack_rs::{buffer_off, buffer_on, MockTermiosWrapper};
+use console_blackjack_rs::{MockTermiosWrapper, buffer_off, buffer_on};
 
 #[test]
 fn test_buffer_off() {

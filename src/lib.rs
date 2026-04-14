@@ -8,7 +8,7 @@ use std::io;
 use std::io::{BufRead, Read, Stdin, Write};
 use std::path::Path;
 use std::str::FromStr;
-use termios::{tcsetattr, Termios, ICANON, TCSANOW};
+use termios::{ICANON, TCSANOW, Termios, tcsetattr};
 
 pub const MIN_BET: u32 = 500;
 pub const MAX_BET: u32 = 10000000;

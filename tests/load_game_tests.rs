@@ -1,4 +1,4 @@
-use console_blackjack_rs::{build_game, load_game, MockTermiosWrapper, SAVE_FILE};
+use console_blackjack_rs::{MockTermiosWrapper, SAVE_FILE, build_game, load_game};
 
 #[test]
 fn test_load_game() {

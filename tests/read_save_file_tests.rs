@@ -1,4 +1,4 @@
-use console_blackjack_rs::{read_save_file, SAVE_FILE};
+use console_blackjack_rs::{SAVE_FILE, read_save_file};
 
 #[test]
 fn test_read_save_file() {

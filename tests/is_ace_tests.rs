@@ -1,4 +1,4 @@
-use console_blackjack_rs::{is_ace, Card};
+use console_blackjack_rs::{Card, is_ace};
 
 #[test]
 fn test_is_ace_true() {

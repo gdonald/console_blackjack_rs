@@ -1,4 +1,4 @@
-use console_blackjack_rs::{build_game, save_game, MockTermiosWrapper, SAVE_FILE};
+use console_blackjack_rs::{MockTermiosWrapper, SAVE_FILE, build_game, save_game};
 use std::fs::File;
 use std::io::Read;
 

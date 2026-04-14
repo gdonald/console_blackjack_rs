@@ -21,9 +21,7 @@ fn test_new_dealer_hand_initialization() {
 #[test]
 fn test_dealer_hands_are_equal_when_cloned() {
     let card = Card { value: 0, suit: 0 };
-    let hand = Hand {
-        cards: vec![card],
-    };
+    let hand = Hand { cards: vec![card] };
     let dealer_hand = DealerHand {
         hide_down_card: true,
         hand: hand.clone(),
@@ -43,9 +41,7 @@ fn test_hand_has_different_card_count() {
     let hand1 = Hand {
         cards: vec![card1, card2],
     };
-    let hand2 = Hand {
-        cards: vec![card1],
-    };
+    let hand2 = Hand { cards: vec![card1] };
     let dealer_hand = DealerHand {
         hide_down_card: true,
         hand: hand1.clone(),
