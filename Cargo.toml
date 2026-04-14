@@ -5,6 +5,6 @@ authors = ["Greg Donald <gdonald@gmail.com>"]
 edition = "2024"
 
 [dependencies]
-rand = "0.8.5"
+rand = "0.9.3"
 regex = "1.10.3"
 termios = "0.3.3"
